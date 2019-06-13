@@ -47,7 +47,21 @@ def count_documents(connection, db):
     return connection.close()
 
 def extract_data(connection, db, env_flag, output_flag):
-    print('Extract')
+    results = db.find({})
+    dataframe = pd.DataFrame(list(results))
+    return (
+        print_results(connection, dataframe) if output_flag == '--print'
+        else create_csv(connection, dataframe, env_flag))
+
+def print_results(connection, dataframe):
+    del dataframe['_id']
+    del dataframe['__v']
+    print(dataframe)
+
+def create_csv(connection, dataframe, env_flag):
+    del dataframe['_id']
+    del dataframe['__v']
+    print('create csv')
 
 def print_args_error(message):
     print(f'{message}. Please supply: ')
