@@ -21,8 +21,21 @@ def main():
         else print_args_error('Cannot print or save prod data') if sys.argv[1] == '--prod' and sys.argv[2] != '--count'
         else set_connection(sys.argv[1], sys.argv[2]))
 
-def set_connection(env_flag, output_flag):
-    print(env_flag, output_flag)
+def set_connection(env_flag, outpt_flag):
+    return (
+        connect_and_extract(
+            os.getenv('DEV_DB_CONNECTION'), os.getenv('DEV_DB_NAME'), 
+            os.getenv('DEV_DB_COLLECTION'), env_flag, outpt_flag) if env_flag == '--dev'
+        else connect_and_extract(
+            os.getenv('TEST_DB_CONNECTION'), os.getenv('TEST_DB_NAME'), 
+            os.getenv('TEST_DB_COLLECTION'), env_flag, outpt_flag) if env_flag == '--test'
+        else connect_and_extract(
+            os.getenv('PROD_DB_CONNECTION'), os.getenv('PROD_DB_NAME'), 
+            os.getenv('PROD_DB_COLLECTION'), env_flag, outpt_flag) if env_flag == '--prod'
+        else print_args_error('Missing or incorrect env arguments'))
+
+def connect_and_extract(connection_string, db_name, collection_name, env_flag, output_flag):
+    print('connect and extract', env_flag, output_flag)
 
 def print_args_error(message):
     print(f'{message}. Please supply: ')
