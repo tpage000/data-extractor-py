@@ -23,19 +23,31 @@ def main():
 
 def set_connection(env_flag, outpt_flag):
     return (
-        connect_and_extract(
+        connect_to_db(
             os.getenv('DEV_DB_CONNECTION'), os.getenv('DEV_DB_NAME'), 
             os.getenv('DEV_DB_COLLECTION'), env_flag, outpt_flag) if env_flag == '--dev'
-        else connect_and_extract(
+        else connect_to_db(
             os.getenv('TEST_DB_CONNECTION'), os.getenv('TEST_DB_NAME'), 
             os.getenv('TEST_DB_COLLECTION'), env_flag, outpt_flag) if env_flag == '--test'
-        else connect_and_extract(
+        else connect_to_db(
             os.getenv('PROD_DB_CONNECTION'), os.getenv('PROD_DB_NAME'), 
             os.getenv('PROD_DB_COLLECTION'), env_flag, outpt_flag) if env_flag == '--prod'
         else print_args_error('Missing or incorrect env arguments'))
 
-def connect_and_extract(connection_string, db_name, collection_name, env_flag, output_flag):
-    print('connect and extract', env_flag, output_flag)
+def connect_to_db(connection_string, db_name, collection_name, env_flag, output_flag):
+    connection = MongoClient(connection_string)
+    db = connection[db_name][collection_name]
+    return (
+        count_documents(connection, db) if output_flag == '--count'
+        else extract_data(connection, db, env_flag, output_flag))
+
+def count_documents(connection, db):
+    print('Total number of documents in collection: ')
+    print(db.count_documents({}))
+    return connection.close()
+
+def extract_data(connection, db, env_flag, output_flag):
+    print('Extract')
 
 def print_args_error(message):
     print(f'{message}. Please supply: ')
