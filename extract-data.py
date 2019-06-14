@@ -48,6 +48,8 @@ def count_documents(connection, db):
 
 def extract_data(connection, db, env_flag, output_flag):
     results = db.find({})
+    # example query to filter (by boolean):
+    # results = db.find({ "field1": True })
     dataframe = pd.DataFrame(list(results))
     return (
         print_results(connection, dataframe) if output_flag == '--print'
@@ -56,7 +58,10 @@ def extract_data(connection, db, env_flag, output_flag):
 def print_results(connection, dataframe):
     del dataframe['_id']
     del dataframe['__v']
+    # restrict columns:
+    # dataframe_selection = dataframe[[ 'field1', 'field2', ... ]]
     print(dataframe)
+    return connection.close()
 
 def create_csv(connection, dataframe, env_flag):
     del dataframe['_id']
