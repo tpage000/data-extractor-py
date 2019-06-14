@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 import pandas as pd
-import datetime
+from datetime import datetime
 import sys
 from dotenv import load_dotenv
 import os
@@ -66,7 +66,17 @@ def print_results(connection, dataframe):
 def create_csv(connection, dataframe, env_flag):
     del dataframe['_id']
     del dataframe['__v']
-    print('create csv')
+    # restrict columns:
+    # dataframe_selection = dataframe[[ 'field1', 'field2', ... ]]
+    path = './'
+    timestamp = datetime.now().isoformat()
+    filestring = f'{timestamp}{env_flag}.csv'
+    print('Creating csv ...')
+    dataframe.to_csv(path + filestring, index=False, encoding='utf-8')
+    print('Done')
+    print(f'Extracted {len(dataframe.index)} documents to: {path}')
+    print(f'{filestring}')
+    return connection.close()
 
 def print_args_error(message):
     print(f'{message}. Please supply: ')
