@@ -58,7 +58,6 @@ def extract_and_process(connection, db, env_flag, output_flag, query, fields):
         else print_args_error('Missing or incorrect output format'))
 
 def print_results(connection, dataframe):
-    print('=======')
     print(dataframe)
     return connection.close()
 
