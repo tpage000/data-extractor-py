@@ -1,15 +1,11 @@
 from pymongo import MongoClient
-import pandas as pd
 from datetime import datetime
-import sys
 from dotenv import load_dotenv
+import pandas as pd
+import math
+import sys
 import os
 load_dotenv()
-
-# OPTIONS
-# --dev     --print/--csv/--count
-# --test    --print/--csv/--count
-# --prod    --count
 
 def main():
     env_flag_list = ['--dev', '--test', '--prod']
@@ -51,21 +47,20 @@ def extract_data(connection, db, env_flag, output_flag):
     # example query to filter (by boolean):
     # results = db.find({ "field1": True })
     dataframe = pd.DataFrame(list(results))
+    if '_id' in dataframe: del dataframe['_id']
+    if '__v' in dataframe: del dataframe['__v']
     return (
         print_results(connection, dataframe) if output_flag == '--print'
-        else create_csv(connection, dataframe, env_flag))
+        else create_csv(connection, dataframe, env_flag) if output_flag == '--csv' and env_flag != '--prod'
+        else print_args_error('Missing or incorrect output format'))
 
 def print_results(connection, dataframe):
-    del dataframe['_id']
-    del dataframe['__v']
     # restrict columns:
     # dataframe_selection = dataframe[[ 'field1', 'field2', ... ]]
     print(dataframe)
     return connection.close()
 
 def create_csv(connection, dataframe, env_flag):
-    del dataframe['_id']
-    del dataframe['__v']
     # restrict columns:
     # dataframe_selection = dataframe[[ 'field1', 'field2', ... ]]
     path = './'
@@ -76,6 +71,38 @@ def create_csv(connection, dataframe, env_flag):
     print('Done')
     print(f'Extracted {len(dataframe.index)} documents to: {path}')
     print(f'{filestring}')
+    return connection.close()
+
+def create_csv(connection, dataframe, env_flag):
+    max_rows_per_file = 30000.0
+    path = '../data/'
+    timestamp = datetime.now().isoformat()
+    total_rows = len(dataframe.index)
+    number_of_files = math.ceil(total_rows / max_rows_per_file)
+    start_index = 0
+    end_index = int(max_rows_per_file)
+    iterations_remaining = number_of_files
+    create_each_file(
+            number_of_files, max_rows_per_file, dataframe, start_index, end_index, 
+            timestamp, path, env_flag, iterations_remaining)
+    print('Done')
+    print(f'Extracted {len(dataframe.index)} documents to: {path}')
+    return connection.close()
+
+def create_each_file(number_of_files, max_rows_per_file, dataframe, start_index, end_index, 
+        timestamp, path, env_flag, iterations_remaining):
+    if iterations_remaining:
+        filestring = f'{timestamp}-{number_of_files - iterations_remaining + 1}{env_flag}.csv'
+        print(f'writing to {path}{filestring} ........')
+        df_slice = dataframe.iloc[ start_index : end_index ]
+        df_slice.to_csv(path + filestring, index=False, encoding='utf-8')
+        return create_each_file(
+                number_of_files, max_rows_per_file, dataframe,
+                start_index + max_rows_per_file, end_index + max_rows_per_file, timestamp, 
+                path, env_flag, iterations_remaining - 1)
+
+def create_csv_error(connection):
+    print('create csv error')
     return connection.close()
 
 def print_args_error(message):
