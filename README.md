@@ -1,10 +1,8 @@
-# Data Extractor
+# Data extractor
 
-## Extract data from mongo database
+## Extract mongo data from local or remote server
 
-### Extract from local mongo and/or remote server
-
-Usage
+### Basic usage
 
 Provide environment flag and output flag
 
@@ -20,15 +18,68 @@ Provide environment flag and output flag
 
 Example
 
+> Extract data from dev db into csv files
+
 ```
-python some_file.py --dev --csv
+python extract.py --dev --csv
 ```
 
-Restrictions
+> Count number of records in test db
 
-* Cannot print or save data from `--PROD` for security reasons
+```
+python extract.py --test --count
+```
 
-Connection defined in `.env` file
+> Print to console contents of dev db
 
-* DB connection string, name, and collection loaded from .env file in same directory
+```
+python extract.py --dev --print
+```
+
+* Cannot print or save `--prod` data.
+* Max rows per file configurable
+
+--
+
+### Advanced / optional usage
+
+Optional arguments for **query** and **fields**
+
+Example
+
+> Retrieve only documents where column "somevalue" has value True
+
+```
+python extract.py --test --print "{ 'somevalue': True }"
+```
+
+> Retrieve all documents but only the "somevalue" column
+
+```
+python extract.py --test --print {} "{ 'somevalue': 1 }"
+```
+
+> Retrieve all documents but remove the "somevalue" column
+
+```
+python extract.py --dev --csv {} "{ 'somevalue': 0 }"
+```
+
+--
+
+### Environment variables
+
+```
+DEV_DB_CONNECTION='connection string incl username and password'
+DEV_DB_NAME='name of sub database'
+DEV_DB_COLLECTION='name of collection'
+
+TEST_DB_CONNECTION=''
+TEST_DB_NAME=''
+TEST_DB_COLLECTION=''
+
+PROD_DB_CONNECTION=''
+PROD_DB_NAME=''
+PROD_DB_COLLECTION=''
+```
 
