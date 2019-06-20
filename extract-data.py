@@ -60,7 +60,6 @@ def extract_and_process(connection, db, env_flag, output_flag, query, fields):
 def print_results(connection, dataframe):
     print('=======')
     print(dataframe)
-    print('=======')
     return connection.close()
 
 def create_csv(connection, dataframe, env_flag):
@@ -105,4 +104,6 @@ def print_args_error(message):
     print('--print (for --dev and --test only)')
     print('--count')
     print('--csv')
+
+main()
 
