@@ -2,6 +2,18 @@
 
 ## Extract mongo data from local or remote server
 
+### Installation
+
+* python 3 required
+
+* clone
+
+* create `../data` directory
+
+```
+pip install -r requirements.txt
+```
+
 ### Basic usage
 
 Provide environment flag and output flag
