@@ -62,13 +62,13 @@ def print_results(connection, dataframe):
     return connection.close()
 
 def create_csv(connection, dataframe, env_flag):
-    max_rows_per_file = 30000.0
+    max_rows_per_file = 4
     path = '../data/'
     timestamp = datetime.now().isoformat()
     total_rows = len(dataframe.index)
     number_of_files = math.ceil(total_rows / max_rows_per_file)
     start_index = 0
-    end_index = int(max_rows_per_file)
+    end_index = max_rows_per_file
     iterations_remaining = number_of_files
     create_each_file(
             number_of_files, max_rows_per_file, dataframe, start_index, end_index, 
